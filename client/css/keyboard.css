@@ -1,0 +1,145 @@
+/**
+ * @license
+ * Copyright 2019 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* 
+ * Piano keyboard. Design inspired by https://dribbble.com/shots/1820199-Electro-Synthesizer-Sticker.
+ */
+.keyboard-shadow {
+  background: white;
+  display: inline-block;
+  padding: var(--spacing-s);
+  border-radius: 14px;
+  
+  width: 100%;
+  max-width: 640px;
+}
+.keyboard-box {
+  background: var(--blue);
+  padding: var(--spacing);
+  border: var(--border-l);
+  border-radius: 14px;
+  display: inline-block;
+  width: 100%;
+}
+.keyboard {
+  --black-width: 15px;
+  --num-white: 7;
+  --num-black: calc(3 * var(--num-white));
+  --white-width: calc(3 * var(--black-width));
+  --total-width: calc(var(--num-white) * var(--white-width) + 2 * 3px);
+  
+  position: relative;
+  display: block;
+  width: var(--total-width);
+  height: 100%;
+  pointer-events: none;
+  margin: 0 var(--spacing);
+}
+
+/* 
+ * Keyboard part. 
+ * Based on https://codepen.io/clkent/pen/dQwGqj which is brilliant 
+ */
+.white-keys {
+  position: absolute;
+  top:0;
+  left:0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--num-white), var(--white-width));
+  width: var(--total-width);
+  grid-column-gap: 0;
+  justify-items: center;
+  border: var(--border);
+  border-radius: 5px;
+}
+.black-keys {
+  position: absolute;
+  top:0;
+  left:0;
+  width: var(--width);
+  height: 60%;
+  display: grid;
+  grid-template-columns: repeat(var(--num-black), var(--black-width));
+  justify-items: center;
+}
+
+.keyboard button {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s linear;
+  font-family: inherit;
+  pointer-events: all;
+  border: none;
+}
+.keyboard button:hover, .keyboard button.down {
+  background: var(--light-red) !important;
+  color: black !important;
+  top: 4px;
+  border-bottom: var(--border);
+  box-shadow: 0 -4px var(--grey);
+}
+.keyboard button > span {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+}
+.keyboard > .white-keys > button:not(:last-child) {
+  background: white;
+  color: black;
+  border-right: var(--border);
+}
+.keyboard > .white-keys > button {
+  border-top: 3px solid var(--grey);
+}
+
+.keyboard > .black-keys > button {
+  background: var(--red);
+  color: white;
+  border: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.black-keys button.c {
+  grid-column: 3 / span 2;
+}
+.black-keys button.d {
+  grid-column: 6 / span 2;
+}
+.black-keys button.f {
+  grid-column: 12 / span 2;
+}
+.black-keys button.g {
+  grid-column: 15 / span 2;
+}
+.black-keys button.a {
+  grid-column: 18 / span 2;
+}
+.black-keys button.c2 {
+  grid-column: 24 / span 2;
+}
+.black-keys button.d2 {
+  grid-column: 27 / span 2;
+}
+.black-keys button.f2 {
+  grid-column: 33 / span 2;
+}
