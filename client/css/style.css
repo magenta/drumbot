@@ -1,0 +1,494 @@
+/**
+ * @license
+ * Copyright 2019 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+* {box-sizing:border-box}
+[disabled] {pointer-events:none;opacity:0.3}
+[disabled] * {pointer-events:none}
+
+[hidden] {display: none !important}
+
+html {
+  --light-red: #F79996;
+  --red: #F05A63;
+  --blue: #7BE1E1;
+  --grey: #B2B2B2;
+  --spacing-s: 8px; 
+  --spacing: 14px;
+  --spacing-l: 24px;
+  --border: 3px solid black;
+  --border-l: 5px solid black;
+  --shadow: 0 3px var(--grey);
+}
+
+body {
+  font-family: 'Roboto Mono', monospace;
+  margin: 2em;
+  background: var(--light-red);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+.sans { font-family: sans-serif !important; }
+.upright {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-size: 12px;
+  letter-spacing: -4px;
+}
+
+a:link, a:visited {
+  color: white;
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 2em;
+}
+h1, h2 {
+  text-align: center;
+  color: white;
+}
+p {
+  padding: var(--spacing-l) 0; 
+}
+li {
+  margin-bottom: var(--spacing);
+}
+
+section {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.accent {
+  padding: 0 4px;
+  border-radius: 3px;
+}
+.accent.white {
+  background: white;
+  color: black;
+}
+.accent.red {
+  background: var(--red);
+  color: white;
+}
+.accent.blue {
+  background: var(--blue);
+  color: black;
+}
+.accent.gold {
+  background: gold;
+  color: black;
+}
+
+/*
+ * Splash screen
+ */
+.preamble, summary, .main {
+  text-align: center;
+}
+
+/*
+ * Radio buttons
+ */
+.control-indicator {
+  border:  var(--border);
+  border-radius: 2px;
+}
+.radio {
+  position: relative;
+  display: inline-block;
+  padding-left: calc(24px + var(--spacing-s));
+  cursor: pointer;
+  margin: var(--spacing-s) 0;
+}
+.radio > input {
+  position: absolute;
+  opacity: 0;
+  z-index: -1;
+}
+.radio >  input:focus ~ .control-indicator {
+  background-color: var(--light-red);
+  box-shadow: var(--shadow);
+}
+.radio >  input:checked ~ .control-indicator {
+  background-color: var(--red) !important;
+}
+
+.radio > .control-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.radio:hover .control-indicator {
+  background-color: var(--light-red);
+}
+
+/*
+ * Regular buttons and a container
+ */
+.controls {
+  border-radius: 5px;
+  background: white;
+  border: var(--border);
+  margin-bottom: 14px;
+  padding: var(--spacing-s);
+  color: black
+}
+.controls.centered {
+  text-align: left;
+  width: 100%;
+  margin: var(--spacing) auto;
+  padding: var(--spacing-l);
+}
+.controls.small {
+  max-width: 500px;
+}
+.controls.centered button {
+  margin-left: auto;
+  margin-right: auto;
+}
+.controls h2 {
+  color: black;
+}
+
+.bottom {
+  --keyboard-height: 140px;
+  height: var(--keyboard-height);
+}
+.mute {
+  margin-right: var(--spacing);
+}
+
+.button {
+  display: block;
+  background: var(--light-red);
+  border: var(--border);
+  border-radius: 3px;
+  margin: 0;
+  padding: var(--spacing-s) var(--spacing);
+  fill: var(--red);
+  stroke: black;
+  stroke-width: 3px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 3px var(--grey); 
+  cursor: pointer;
+  height: 50px;
+}
+
+button.button:hover {
+  box-shadow: none;
+  top: 3px;
+  background: var(--blue);
+}
+.button.round {
+  border-radius: 50%;
+  width: 50px;
+  padding: var(--spacing-s) 0;
+}
+.button > .knob {
+  height: 24px;
+  width: 24px;
+  display: inline-block;
+  background: var(--red);
+  border: var(--border);
+  border-radius: 50%;
+}
+.button > span, .button > svg  {
+  vertical-align: middle;  
+}
+
+label.small {
+  font-size: 11px;
+}
+input {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: none;
+  font-weight: bold;
+  text-align: center;
+  background: transparent;
+  width: 40px;
+  padding: 0;
+  margin: 0;
+}
+input:hover {
+  background: var(--blue);
+}
+
+select {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: var(--light-red);
+  box-shadow: none;
+  margin-bottom: var(--spacing);
+}
+
+#midiContainer {
+  margin-left: var(--spacing-l);
+  padding-left: var(--spacing-s);
+}
+
+.visualizer {
+  background: var(--light-red);
+  height: 140px;
+  margin: 0 var(--spacing);
+  padding: 0 var(--spacing-s);
+  width: 264px; 
+  overflow: hidden;
+  border: var(--border);
+  position: relative;
+}
+.visualizer svg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0px;
+}
+
+.visualizer rect {
+  height: 5px;
+}
+
+.visualizer #timeline {
+  width: 4px;
+  background: var(--red);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#tickDisplay, .instruments {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  border: var(--border);
+  line-height: 34px;
+  font-weight: bold;
+  text-align: center;
+  margin: 0 auto;
+  margin-bottom: var(--spacing-s);
+}
+#tickDisplay {
+  background: white;
+}
+
+#statusUpdate {
+  flex-grow: 1;
+  font-weight: bold;
+  width: 200px;
+  xwhite-space: pre;
+}
+.saving {
+  background: gold !important;
+}
+.saving .volume-label {
+  background: gold !important;
+}
+.error {
+  background: var(--red);
+}
+
+.volume-controls {
+  border: var(--border);
+  padding: 0 var(--spacing);
+}
+.volume-controls .volume-label {
+  background: var(--blue);
+  margin-top: -14px;
+  padding: 0 var(--spacing);
+}
+
+.range-wrap {
+  --thumb-w: 20px;
+  --thumb-h: 8px;
+  --track-size: 8px;
+  --thumb-margin: -7px;
+  --height: calc(var(--keyboard-height) / 1.5);
+  width: var(--thumb-w);
+  height: var(--height);
+  position: relative;
+  margin: 0 var(--spacing-s);
+}
+.range-label {
+  margin: 0 var(--spacing-s);
+}
+
+/*
+ * input type=range is truly the worst.
+ */
+input[type=range] {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  padding: 0;
+  width: var(--height);
+  height: var(--thumb-w);
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+input[type=range] {
+  -webkit-appearance: none; 
+  -moz-appearance: none;
+  appearance: none;
+  background: transparent;
+  border-bottom: none;
+}
+input[type=range]:hover {
+  background: transparent;
+}
+
+ /* Thumb */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: var(--thumb-w);
+  width: var(--thumb-h);
+  background: var(--red);
+  margin-top: var(--thumb-margin);
+  border: 2px solid black;
+  cursor: pointer;
+}
+input[type=range]::-moz-range-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: var(--thumb-w);
+  width: var(--thumb-h);
+  background: var(--red);
+  margin-top: var(--thumb-margin);
+  border: 2px solid black;
+  cursor: pointer;
+}
+input[type=range]::-ms-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: var(--thumb-w);
+  width: var(--thumb-h);
+  background: var(--red);
+  margin-top: var(--thumb-margin);
+  border: 2px solid black;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.5);
+}
+input[type=range]::-moz-range-thumb:hover {
+  transform: scale(1.5);
+}
+input[type=range]::-ms-thumb:hover {
+  transform: scale(1.5);
+}
+
+ /* Track */
+input[type=range]::-webkit-slider-runnable-track {
+  height: var(--track-size);
+  cursor: pointer;
+  background: var(--red);
+  border: 2px solid black;
+}
+input[type=range]::-moz-range-track {
+  height: var(--track-size);
+  cursor: pointer;
+  background: var(--red);
+  border: 2px solid black;
+}
+input[type=range]::-ms-track {
+  height: var(--track-size);
+  cursor: pointer;
+  background: var(--red);
+  border: 2px solid black;
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    margin: 1em;
+  }
+  .controls {
+    flex-direction: column;
+  }
+  .controls > .vertical {
+    flex-direction: row;
+    width: 100%;
+    align-items: flex-start;
+  }
+  .controls #btnRecord {
+    width: 280px !important;
+    margin-left: var(--spacing);
+  }
+  .visualizer {
+    margin: var(--spacing) 0;
+    width: 100%;
+  }
+  .bottom {
+    --keyboard-height: 120px !important;
+  }
+  .keyboard {
+    --black-width: 2vw !important;
+  }
+  .volume-controls {
+    border: var(--border);
+    padding: 0;
+  }
+  .volume-controls .volume-label {
+    padding: 0;
+  }
+}
+
+.rotate {
+  display: none;
+}
+
+@media screen and (max-width: 450px) {
+  .rotate {
+    display: block;
+  }
+  
+  .bottom .octaves {
+    display: none;
+  } 
+  .keyboard {
+    margin: 0;
+    --black-width: 8px !important;
+  }
+}

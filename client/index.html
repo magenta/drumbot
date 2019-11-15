@@ -1,0 +1,238 @@
+<!-- Copyright 2019 Google Inc. All Rights Reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+============================================================================-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>DrumBuddy</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/keyboard.css">
+  </head>  
+  <body>
+    <section>
+      <h1>DrumBuddy</h1>
+      <div class="preamble">
+        <p>Need a drummer but don't know <i>somebody</i>? Try <b>DrumBuddy</b>! Play real-time music with a machine learning drummer
+        that drums based on your melody.</p> 
+      </div>  
+
+      <div class="settings controls small centered">
+        <h2>Settings</h2>
+        You're going to play music on your...<br> 
+        <label class="radio">
+          <input name="input" type="radio" id="inputKeyboard" checked>
+          <span class="control-indicator"></span>
+          Keyboard
+        </label>
+        <br>
+        <label class="radio">
+          <input name="input" type="radio" id="inputMidi">
+          <span class="control-indicator"></span>
+          MIDI
+        </label>
+        <div id="midiContainer" hidden>
+          <label>Input: <select id="selectMidiIn" class="button"></select></label>
+          <label>Output: <select id="selectMidiOut" class="button"></select></label>
+        </div>
+        
+        <div id="textMidiNotSupported" hidden>MIDI isn't supported on this browser :(</div>
+        <br>
+        <button class="button" id="btnReady">
+          <span class="text">I'm ready!</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="main" hidden>
+      <section class="controls centered rotate">
+        <h2>Your screen is not wide enough :(</h2>
+        <p>Your screen is not wide enough for this app to work well (it displays an octave worth's of keys, and they'll be hard to press 😢). 
+          If you're on mobile, please rotate your device. If you're on a very tiny mobile, I'm afraid you'll have to look for a larger device.
+        </p>
+        <button class="button" onclick="document.querySelector('.rotate').hidden=true">
+          <span class="text">I don't care, hide this.</span>
+        </button>
+      </section>
+      
+      <div class="keyboard-shadow">
+        <div class="keyboard-box">
+          <div class="horizontal">
+            <div id="tickDisplay"></div>
+            <div id="statusUpdate">Loading soundfont files...</div>
+            <button hidden class="button instruments" title="change instrument">
+              <select id="dropInstruments"></select>
+              <span class="hide-select">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+              </span>
+            </button>
+          </div>
+          
+          <div class="controls horizontal top">
+            <div class="vertical">
+              <div class="horizontal" style="width:100%">
+                <label class="small" title="A smaller number, like 0.3, means the generated drums are more conservative. A higher number, like 2, means that the generated drums will be more random. A value of 0 means that the drums will not be regenerated at every step.">
+                  <input value="1" id="inputTemperature"  class="button round">
+                  temp
+                </label>
+                <label class="small">
+                  <input value="120" id="inputTempo" class="button round">
+                  bpm
+                </label>
+              </div>
+              <button class="button" id="btnRecord" disabled style="width: 130px">
+                <span class="knob"></span>
+                <span class="text">record</span>
+              </button>
+            </div>
+            
+            <div class="visualizer">
+              <div id="timeline"></div>
+              <svg id="svgInput"></svg>
+              <svg id="svgMelody"></svg>
+              <svg id="svgDrums"></svg>
+            </div>
+            
+            <div class="vertical">
+              <button class="button" id="btnPlay">
+                <!-- Icon from: https://material.io/resources/icons/ -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" class="play"><path d="M8 5v14l11-7z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" class="stop" hidden><path d="M6 6h12v12H6z"/></svg>
+                <span class="text">play</span>
+              </button>
+              <br>
+              <button class="button" id="btnSave">
+                <!-- Icon from: https://material.io/resources/icons/ -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span class="text">save</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="horizontal bottom">
+            <div class="vertical volume-controls" disabled>
+              <b class="volume-label">loops</b>
+              <div class="horizontal">
+                <div class="range-wrap"><input type="range" min="0" max="1" step="1" value="1" id="inputMuteDrums"></div>
+                <div class="range-wrap"><input type="range" min="0" max="1" step="1" value="1" id="inputMuteInput"></div>
+                <div class="range-wrap"><input type="range" min="0" max="1" step="1" value="1" id="inputMuteClick"></div>
+              </div>
+              <div class="horizontal">
+                <label class="range-label">🥁</label>
+                <label class="range-label">🎹</label>
+                <label class="range-label">⏱</label>
+              </div>
+            </div>
+            
+            <div class="vertical">
+              <div class="keyboard">
+                <div class="white-keys">
+                  <button class="note-a pitch-0" data-pitch="0"><span>a</span></button>
+                  <button class="note-s pitch-2" data-pitch="2"><span>s</span></button>
+                  <button class="note-d pitch-4" data-pitch="4"><span>d</span></button>
+                  <button class="note-f pitch-5" data-pitch="5"><span>f</span></button>
+                  <button class="note-g pitch-7" data-pitch="7"><span>g</span></button>
+                  <button class="note-h pitch-9" data-pitch="9"><span>h</span></button>
+                  <button class="note-j pitch-11" data-pitch="11"><span>j</span></button>
+                </div>
+                <div class="black-keys">
+                  <button class="note-w c pitch-1" data-pitch="1"><span>w</span></button>
+                  <button class="note-e d pitch-3" data-pitch="3"><span>e</span></button>
+                  <button class="note-t f pitch-6" data-pitch="6"><span>t</span></button>
+                  <button class="note-y g pitch-8" data-pitch="8"><span>y</span></button>
+                  <button class="note-u a pitch-10" data-pitch="10"><span>u</span></button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="vertical octaves">
+              <button class="button" id="btnOctaveUp">z <span class="sans">↑</span></button>
+              <span style="font-size: 12px;">octave</span>
+              <button class="button" id="btnOctaveDown">x <span class="sans">↓</span></button>
+            </div>
+          </div>
+        </div>
+      </div>  
+    </section>
+    
+    <br><br>
+    <section>
+      <details>
+        <summary><b>How to use</b></summary>
+        <ul>
+          <li>Press the <span class="accent red">record</span> button. This will start a metronome, but you don't have to start
+          recording your melody as soon as it starts!</li>
+          <li>When you're ready, start playing something -- the more "on beat" you are, the 
+          better your results will be</li>
+          <li>After you've played up two 2-bars (including whatever leading silence you had), that
+          melody will start looping (and will be shown in the visualizer in <span class="accent gold">yellow</span></li>
+          <li>This loop will be used to generate a drum pattern that matches the melody (this will be shown in 
+          the visualizer in <span class="accent blue">blue</span></li>
+          <li>The drums will be re-generated on every 2-bar chunk. You can control their randomness (or entropy) with the 
+            <b class="accent red">temperature</b> input. You can keep the current drum loop and not re-generate it
+          on the next 2-bar chunk by pressing <b class="accent blue">v</b></li>
+          <li>You can mute or unmute any of the loops (including the metronome) using the <b class="accent red">sliders</b>
+          on the left of the keyboard</li>
+        </ul>
+        <br>
+      </details>
+      
+      <details>
+        <summary><b>Keyboard shortcuts</b></summary>
+        <ul>
+          <li><b class="accent gold">m</b> mutes/unmutes the melody loop</li>
+          <li><b class="accent blue">n</b> mutes/unmutes the drums loop</li>
+          <li><b class="accent blue">v</b> toggles between re-generating the drums on every new 2-bar chunk, or keeping the current drum loop</li>
+          <li><b class="accent red">b</b> key restarts your current recording from scratch</li>
+          <li><b class="accent red">z</b> or <b class="accent red">x</b> change the piano octave</li>
+        </ul>
+        <br>
+      </details>
+      
+      <details>
+        <summary><b>How does it work?</b></summary>
+        <ul>
+          <li>This app uses an open-source Magenta model called  <b class="accent blue">Drumify</b>. It is able to convert 
+           a constant-velocity 'tap' pattern into a drum pattern
+          </li>
+          <li>DrumBuddy records 2 bars of your melody, removes the pitches from it (so that it's a sequence of taps),
+          and then sends it to the model</li>
+          <li>All of the machine learning code happens in the background, on a Node server, so that your realtime
+          audio is never interrupted</li>
+          <li>You can read more about how the model was trained on the <a href="https://magenta.tensorflow.org/groovae">Magenta blog</a>, 
+            or see the code for this app on <a href="">GitHub</a></li>
+        </ul>
+      </details>
+      
+      <details>
+        <summary><b>Known issues</b></summary>
+        <ul>
+          <li>When you unmute the melody/drums, they won't actually audibly start up until the next 2-bar chunk</li>
+        </ul>
+      </details>
+    </section>
+    
+  </body>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.8.21/Tone.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@magenta/music@^1.10.0/es6/core.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js" defer></script>
+  
+  <script src="/audio/visualizer.js"></script>  
+  <script src="/audio/input-recorder.js"></script>  
+  <script src="/audio/audio-loop.js"></script>  
+  <script src="/audio/metronome.js"></script>
+  
+  <script src="/script.js"></script>
+</html>
