@@ -1,16 +1,16 @@
 {
   "name": "hello-express",
   "version": "0.0.1",
-  "description": "A simple Node app built on Express, instantly up and running.",
+  "description": "Play real-time music with a machine learning drummer that drums based on your melody.",
   "main": "server.js",
   "scripts": {
     "start": "node server/app.js"
   },
   "dependencies": {
     "express": "^4.16.4",
-    "@tensorflow/tfjs-node": "latest",
+    "@tensorflow/tfjs-node": "^1.3.2",
     "@tensorflow/tfjs": "1.2.8",
-    "@magenta/music": "1.11.1",
+    "@magenta/music": "^1.11.1",
     "node-fetch": "2.6.0"
   },
   "engines": {
