@@ -1,5 +1,5 @@
 {
-  "name": "hello-express",
+  "name": "drum-bot",
   "version": "0.0.1",
   "description": "Play real-time music with a machine learning drummer that drums based on your melody.",
   "main": "server.js",
