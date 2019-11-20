@@ -14,3 +14,14 @@ run the slightly expensive machine learning code in the background, on the
 Node server, so that your realtime audio is never interrupted.
 
 You can read more about how the model was trained on the [Magenta blog](https://magenta.tensorflow.org/groovae)!
+
+## How to run locally
+After cloning this repo, run:
+
+```
+npm install
+npm start
+```
+
+To start the local Node server on port `9876`. In your browser, navigate to
+[localhost:9876](http://localhost:9876/) to view the app.

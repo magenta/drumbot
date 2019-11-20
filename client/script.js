@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const NOTE_LENGTH = window.Tone.Time('8n').toSeconds(); 
+const NOTE_LENGTH = window.Tone.Time('8n').toSeconds();
 const NUM_INPUT_BARS = 2;
 let TWO_BAR_LENGTH;
 const VELOCITY = 40;
@@ -76,13 +76,13 @@ function initListeners() {
 function startOrStop() {
   const selection = document.getElementById('selectMidiIn').selectedIndex;
   const isUsingMidi = document.getElementById('inputMidi').checked && selection > 0;
-        
+
   if (metronome.isTicking) {
     metronome.stop();
     if (isUsingMidi) {
       const device = midiInDevices[selection];
       device.onmidimessage = null;
-    } 
+    }
     window.onkeydown = null;
     updateUI('stop');
     recorder.addLoops(audioLoop, metronome.timeish());
@@ -94,22 +94,22 @@ function startOrStop() {
     } else {
       window.onkeydown = onKeydown;
     }
-    
+
     resetInputRelatedThings();
-    
+
     const bpm = parseFloat(document.getElementById('inputTempo').value);
     TWO_BAR_LENGTH = 60 / bpm * 4 * NUM_INPUT_BARS;
     visualizer.setTotalTime(TWO_BAR_LENGTH);
     recorder.setBpm(bpm);
     metronome.start(bpm, {clickMark: onClickMark, quarterMark: onQuarterMark, barMark: onBarMark});
-    
+
     updateUI('start');
   }
 }
 
 async function onKeydown(e) {
   if (e.repeat) return;
-  
+
   switch (e.key) {
     case 'n':  // Mute/unmute drums
       audioLoop.toggleDrums(metronome.timeish());
@@ -164,7 +164,7 @@ async function onMidiIn(msg) {
   const pitch = msg.data[1];
   const basePitch = pitch % 12;
   const button = document.querySelector(`.pitch-${basePitch}`);
-  
+
   switch (command) {
     case 0x90: // note on
       notePressed(pitch);
@@ -176,18 +176,18 @@ async function onMidiIn(msg) {
   }
 }
 
-function notePressed(pitch) {  
+function notePressed(pitch) {
   const audioTime = window.Tone.immediate();
   const time = Math.max(0, audioTime - metronome.startedAt);
-  
+
   const n = {
     pitch: pitch,
-    velocity: VELOCITY, 
+    velocity: VELOCITY,
     program: INSTRUMENT,
     startTime: time,
     endTime: time + NOTE_LENGTH
   };
-  
+
   piano.playNote(audioTime, n);
   recorder.saveMelodyNote(n);
 
@@ -218,55 +218,53 @@ function onClickMark(time, click) {
 
 // Every new bar, see if we're done recording input and we should drumify.
 function onBarMark(time) {
-  barStartedAt = time; 
+  barStartedAt = time;
   twoBarCounter++;
-  
+
   // Restart the audio loop every 2 bars if we need to.
   if (audioLoop.ready && twoBarCounter === 2) {
-    loopOffset = time;  
-    
+    loopOffset = time;
+
     if (shouldRegenerateDrums) {
       audioLoop.updateDrums(time);
       updateUI('get-drums-new');
     }
-    audioLoop.loop(time); 
+    audioLoop.loop(time);
     twoBarCounter = 0;
     visualizer.clearInput();
   }
-  
+
   // Record user notes if we need to.
   if (recorder.isRecordingInput) numInputBarsRecorded++;
-  
+
   // Every two bars, get new drums.
   if (!canRecordInput && twoBarCounter === 0) {
-    console.log('maybe getting new drums from drumify');
     drumifyOnServer(audioLoop.melody);
     return;
   }
-  
+
   // If we've recorded at least one bar, we've spanned two bars and we should stop.
   if (numInputBarsRecorded == NUM_INPUT_BARS) {
-    console.log('Have two bars ready for drumify!');
     loopOffset = time;
     const seq = recorder.getInput(TWO_BAR_LENGTH);
-    
+
     if (seq.notes.length !== 0) {
       updateUI('save-stop');
       canRecordInput = false;
-      
+
       // Start the audio loop.
       audioLoop.addMelody(seq, time);
       twoBarCounter = 0;
       drumifyOnServer(seq);
-      
+
       // Stop the metronome.
       if (!metronome.muted) {
         metronome.muted = true;
-        updateUI('toggle-click');  
+        updateUI('toggle-click');
         document.getElementById('inputMuteClick').value = 0;
       }
     }
-  } 
+  }
 }
 
 function playRecording() {
@@ -280,17 +278,16 @@ function playRecording() {
 }
 
 function saveRecording() {
-  window.saveAs(new File([window.core.sequenceProtoToMidi(recorder.full)], 'recording.mid'));  
+  window.saveAs(new File([window.core.sequenceProtoToMidi(recorder.full)], 'recording.mid'));
 }
 async function drumifyOnServer(ns) {
   const temp = parseFloat(document.getElementById('inputTemperature').value);
   if (!shouldRegenerateDrums) {
-    console.log('temperature is 0, no new drums');
     return;
   }
   const start = performance.now();
   ns.temperature = temp;
-  
+
   fetch('/drumify', {
     method: 'POST',
     headers: {
@@ -310,13 +307,13 @@ function resetInputRelatedThings() {
   audioLoop.reset();
   recorder.reset();
   visualizer.reset();
-  
+
   barStartedAt = null;
   canRecordInput = true;
   numInputBarsRecorded = 0;
   twoBarCounter = 0;
   loopOffset = 0;
-  
+
   document.getElementById('inputMuteDrums').value = 1;
   document.getElementById('inputMuteInput').value = 1;
 }
@@ -327,7 +324,7 @@ async function maybeEnableMidi() {
   const midiNotSupported = document.getElementById('textMidiNotSupported');
   const midiIn = document.getElementById('selectMidiIn');
   const midiOut = document.getElementById('selectMidiOut');
-  
+
   if (!isUsingMidi) {
     midiSelect.hidden = true;
     midiNotSupported.hidden = true;
@@ -336,13 +333,13 @@ async function maybeEnableMidi() {
     if (navigator.requestMIDIAccess) {
       midiNotSupported.hidden = true;
       midiSelect.hidden = false;
-      
+
       const midi = await navigator.requestMIDIAccess();
       const inputs = midi.inputs.values();
       const outputs = midi.outputs.values();
-      midiInDevices = [{name: "none (computer keyboard)"}]; 
-      midiOutDevices = [{name: "none (use browser audio)"}]; 
-      
+      midiInDevices = [{name: "none (computer keyboard)"}];
+      midiOutDevices = [{name: "none (use browser audio)"}];
+
       for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
         midiInDevices.push(input.value);
       }
@@ -373,7 +370,7 @@ function updateUI(state) {
   const inputTemperatureLabel = document.getElementById('inputTemperature').parentElement;
   const tickDisplay = document.getElementById('tickDisplay');
   const statusUpdate = document.getElementById('statusUpdate');
-  
+
   switch (state) {
     case 'ready':
       document.querySelector('.preamble').hidden = true;
@@ -509,7 +506,7 @@ function updateUI(state) {
     case 'toggle-click':
       btnMuteMetronome.textContent = metronome.muted ? 'unmute click' : 'mute click';
       break;
-      
-      
+
+
   }
 }

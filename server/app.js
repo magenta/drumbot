@@ -19,14 +19,16 @@ const bodyParser = require('body-parser');
 
 const mm = require('@magenta/music/node/music_vae');
 const mmcore = require('@magenta/music/node/core');
-const tf = require('@tensorflow/tfjs-node');
+//const tf = require('@tensorflow/tfjs-node');
 
 // Fix: magenta.js uses performance.now() for timing logging
 // And fetch for the checkpoint, so fake both :/
 if (!global.performance) global.performance = require('perf_hooks').performance;
 global.fetch = require('node-fetch');
 
-//const mvae = new mm.MusicVAE('https://storage.googleapis.com/magentadata/js/checkpoints/music_vae/groovae_tap2drum_2bar');
+// If you run this locally, and not on Glitch, you might not have the
+// env variables set.
+const PORT = process.env && process.env.PORT ? process.env.PORT : 9876;
 const mvae = new mm.MusicVAE('https://storage.googleapis.com/magentadata/js/checkpoints/groovae/tap2drum_2bar');
 warmUpModel();
 
@@ -45,14 +47,10 @@ app.post('/drumify', async function(request, response) {
   }
   const original_ns = request.body;
   const ns = fixSequence(original_ns);
-  
+
   const temperature = ns.temperature || 1;
-  console.log('using temp', temperature);
-  
   const drums = await drumify(ns, ns.tempos[0].qpm, temperature);
-  console.log('got:');
-  console.log(JSON.stringify(drums));
-  
+
   // Some drums are too quiet and they don't sound great, so mute them completely.
   for (let i = 0; i < drums.notes.length; i++) {
     const note = drums.notes[i];
@@ -61,7 +59,7 @@ app.post('/drumify', async function(request, response) {
       note.velocity = 0;
     }
   }
-  
+
   // Sometimes the first drum comes with a startTime < 0, so fix that.
   if (drums.notes[0].startTime < 0) {
     drums.notes[0].startTime = 0;
@@ -76,9 +74,9 @@ async function warmUpModel() {
   const ns = {notes: [{pitch:60, velocity: 100, startTime: 0, endTime: 1}]}
   const quantizedNS = mmcore.sequences.quantizeNoteSequence(ns, 4);
   await drumify(quantizedNS, 80);
-  
-  app.listen(process.env.PORT, function() {
-    console.log('Your app is listening on port ' + process.env.PORT);
+
+  app.listen(PORT, function() {
+    console.log('Your app is listening on port ' + PORT);
   });
 }
 
@@ -90,26 +88,19 @@ async function drumify(ns, tempo, temperature) {
 }
 
 // From experimenting, Groovae is really picky about the timing
-// of the input, and it works best if the sequence 
+// of the input, and it works best if the sequence
 // is actually looking quantized.
 function fixSequence(ns) {
-  console.log('------');
   // unquantized -> quantized -> unquantized
-  console.log(JSON.stringify(ns));
-  
   const quant = mmcore.sequences.quantizeNoteSequence(ns, 4);
-  console.log(JSON.stringify(quant));
-  
   const unquant = mmcore.sequences.unquantizeSequence(quant);
-  
+
   for (let i = 0; i < unquant.notes.length; i++) {
     delete unquant.notes[i].quantizedStartStep;
     delete unquant.notes[i].quantizedEndStep;
   }
   delete unquant.totalQuantizedSteps;
   delete unquant.quantizationInfo;
-  
-  console.log(JSON.stringify(unquant));
-  
+
   return unquant;
 }
