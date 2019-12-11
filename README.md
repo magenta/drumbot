@@ -22,6 +22,7 @@ After cloning this repo, run:
 npm install
 npm start
 ```
+Depending on your connection, this will take a bit of time (it needs to download a model checkpoint that's about 50MB). You will also see a warning that `This browser does not support Tone.js` -- ignore that. It's a red herring :)
 
-To start the local Node server on port `9876`. In your browser, navigate to
+This will start the local Node server on port `9876`. In your browser, navigate to
 [localhost:9876](http://localhost:9876/) to view the app.
