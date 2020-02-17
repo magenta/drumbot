@@ -162,17 +162,17 @@ async function onKeydown(e) {
 async function onMidiIn(msg) {
   const command = msg.data[0];
   const pitch = msg.data[1];
+  const velocity = msg.data[2];
   const basePitch = pitch % 12;
   const button = document.querySelector(`.pitch-${basePitch}`);
 
-  switch (command) {
-    case 0x90: // note on
+  if (command === 0x90 && velocity > 0) {
+      // note on
       notePressed(pitch);
       button.classList.add('down');
-      break;
-    case 0x80: // note off
+  } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
+      // note off
       button.classList.remove('down');
-      break;
   }
 }
 
